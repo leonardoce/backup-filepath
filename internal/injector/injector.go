@@ -80,6 +80,10 @@ func (injector *Data) Default(ctx context.Context, obj runtime.Object) error {
 				Name:      "backups",
 				MountPath: "/backup",
 			},
+			{
+				Name:      "pgdata",
+				MountPath: "/var/lib/postgresql/data",
+			},
 		},
 		Image:           injector.image,
 		ImagePullPolicy: corev1.PullPolicy(injector.imagePullPolicy),
