@@ -1,5 +1,5 @@
 # Step 1: build image
-FROM golang:1.19 AS builder
+FROM golang:1.21 AS builder
 
 # Cache the dependencies
 WORKDIR /app
@@ -12,5 +12,5 @@ RUN ./scripts/build.sh
 
 # Step 2: build the image to be actually run
 FROM gcr.io/distroless/static
-COPY --from=builder /app/bin/filepath_adapter /app/bin/myapp
+COPY --from=builder /app/bin/filepath_adapter /app/bin/filepath_adapter
 ENTRYPOINT ["/app/bin/filepath_adapter"]

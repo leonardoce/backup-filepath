@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/leonardoce/backup-filepath/cmd/filepath_adapter/injector"
 	"github.com/leonardoce/backup-filepath/cmd/filepath_adapter/server"
 	"github.com/leonardoce/backup-filepath/internal/logging"
 )
@@ -24,6 +25,7 @@ func Cmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(server.Cmd())
+	cmd.AddCommand(injector.Cmd())
 
 	cmd.PersistentFlags().Bool(
 		"debug",

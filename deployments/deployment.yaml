@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: filepath-deployment
+  name: filepath-deployment
+  namespace: filepath
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: filepath-deployment
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: filepath-deployment
+    spec:
+      volumes:
+      - name: secrets
+        secret:
+          secretName: filepath-secret
+      containers:
+      - image: filepath_adapter:latest
+        imagePullPolicy: Never
+        command:
+        - /app/bin/filepath_adapter
+        - "injector"
+        name: filepath
+        resources: {}
+        volumeMounts:
+          - name: secrets
+            readOnly: true
+            mountPath: "/tmp/k8s-webhook-server/serving-certs/"
+status: {}

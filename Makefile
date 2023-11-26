@@ -1,5 +1,5 @@
 .PHONY: run
-run: build
+run: build image
 	./scripts/run.sh
 
 .PHONY: build

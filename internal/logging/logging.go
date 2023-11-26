@@ -40,9 +40,10 @@ func IntoContext(ctx context.Context, debug bool) context.Context {
 
 // FromContext get the logger from thecontext
 func FromContext(ctx context.Context) *logr.Logger {
-	value := ctx.Value(loggerKey).(*logr.Logger)
-	if value == nil {
+	preValue := ctx.Value(loggerKey)
+	if preValue == nil {
 		return newLogger(false)
 	}
-	return value
+
+	return preValue.(*logr.Logger)
 }
