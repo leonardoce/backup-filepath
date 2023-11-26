@@ -16,6 +16,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
 
+const PluginId = "filepath.leonardoce.io"
+
 type Data struct {
 	webhookPort     int
 	image           string
@@ -32,7 +34,7 @@ func New() *Data {
 
 func (injector *Data) Run(ctx context.Context) error {
 	logger := logging.FromContext(ctx)
-	log.SetLogger(*logger)
+	log.SetLogger(logger)
 
 	mgr, err := manager.New(config.GetConfigOrDie(), manager.Options{
 		WebhookServer: webhook.NewServer(webhook.Options{
@@ -51,7 +53,6 @@ func (injector *Data) Run(ctx context.Context) error {
 		return err
 	}
 
-	logger.Info("starting manager", "injector", injector)
 	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
 		logger.Error(err, "unable to run manager")
 		return err
@@ -68,51 +69,38 @@ func (injector *Data) Default(ctx context.Context, obj runtime.Object) error {
 		return fmt.Errorf("expected a Pod but got a %T", obj)
 	}
 
-	// Inject sidecar
-	sidecarContainer := corev1.Container{
-		Name: "filepath-adapter",
-		VolumeMounts: []corev1.VolumeMount{
-			{
-				Name:      "scratch-data",
-				MountPath: "/controller",
-			},
-			{
-				Name:      "backups",
-				MountPath: "/backup",
-			},
-			{
-				Name:      "pgdata",
-				MountPath: "/var/lib/postgresql/data",
-			},
-		},
-		Image:           injector.image,
-		ImagePullPolicy: corev1.PullPolicy(injector.imagePullPolicy),
-		Command: []string{
-			"/app/bin/filepath_adapter",
-			"server",
-			"--listening-network",
-			"unix",
-			"--listening-address",
-			"/controller/walmanager",
-			"--base-path",
-			"/backup",
-		},
+	logger = logger.WithValues("podName", pod.Name, "podNamespace", pod.Namespace)
+
+	configuration, err := GetAdapterConfiguration(pod)
+	if err != nil {
+		return err
 	}
+	if configuration == nil {
+		// This is not a CNPG Pod
+		return nil
+	}
+
+	if configuration.ID != PluginId {
+		// This s not the correct injector
+		logger.Info(
+			"This not is not applicable to this injector",
+			"configuration", configuration,
+			"pluginID", PluginId)
+		return nil
+	}
+
+	// Inject sidecar
 	if len(pod.Spec.Containers) > 0 {
-		pod.Spec.Containers = append(pod.Spec.Containers, sidecarContainer)
+		pod.Spec.Containers = append(
+			pod.Spec.Containers,
+			injector.getSidecarContainer())
 	}
 
 	// Inject backup volume
-	backupVolume := corev1.Volume{
-		Name: "backups",
-		VolumeSource: corev1.VolumeSource{
-			PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-				ClaimName: "backups-pvc",
-			},
-		},
-	}
 	if len(pod.Spec.Volumes) > 0 {
-		pod.Spec.Volumes = append(pod.Spec.Volumes, backupVolume)
+		pod.Spec.Volumes = append(
+			pod.Spec.Volumes,
+			injector.getBackupVolume())
 	}
 
 	// Inject annotations
@@ -120,7 +108,7 @@ func (injector *Data) Default(ctx context.Context, obj runtime.Object) error {
 		pod.Annotations = map[string]string{}
 	}
 	pod.Annotations["filepath-adapter.leonardoce.io"] = "injected"
-	logger.Info("Injected sidecar into Pod", "podName", pod.Name, "namespace", pod.Namespace)
+	logger.Info("Sidecar injected")
 
 	return nil
 }

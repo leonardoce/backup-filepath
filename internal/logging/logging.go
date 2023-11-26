@@ -14,7 +14,7 @@ type loggerKeyType string
 
 const loggerKey = loggerKeyType("logger")
 
-func newLogger(debug bool) *logr.Logger {
+func newLogger(debug bool) logr.Logger {
 	var zapLog *zap.Logger
 	var err error
 
@@ -28,7 +28,7 @@ func newLogger(debug bool) *logr.Logger {
 	}
 
 	result := zapr.NewLogger(zapLog)
-	return &result
+	return result
 }
 
 // IntoContext injects the logger into this context, returning
@@ -39,11 +39,11 @@ func IntoContext(ctx context.Context, debug bool) context.Context {
 }
 
 // FromContext get the logger from thecontext
-func FromContext(ctx context.Context) *logr.Logger {
+func FromContext(ctx context.Context) logr.Logger {
 	preValue := ctx.Value(loggerKey)
 	if preValue == nil {
 		return newLogger(false)
 	}
 
-	return preValue.(*logr.Logger)
+	return preValue.(logr.Logger)
 }
