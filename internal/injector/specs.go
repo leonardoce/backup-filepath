@@ -34,12 +34,12 @@ func (injector *Data) getSidecarContainer() corev1.Container {
 	}
 }
 
-func (injector *Data) getBackupVolume() corev1.Volume {
+func (injector *Data) getBackupVolume(configuration *AdapterConfiguration) corev1.Volume {
 	return corev1.Volume{
 		Name: "backups",
 		VolumeSource: corev1.VolumeSource{
 			PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-				ClaimName: "backups-pvc",
+				ClaimName: configuration.GetPVCName(),
 			},
 		},
 	}

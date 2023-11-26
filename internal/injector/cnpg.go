@@ -10,6 +10,9 @@ import (
 // backup adapter
 const BackupAdapterAnnotationName = "cnpg.io/backupAdapter"
 
+// DefaultPVCName if the name of the default PVC to be used
+const DefaultPVCName = "backups-pvc"
+
 // AdapterConfiguration contains the configuration for an external backup adapter
 type AdapterConfiguration struct {
 	// Id is the adapter ID, used by the injector
@@ -18,6 +21,15 @@ type AdapterConfiguration struct {
 	// Parameters contains the configuration of the backup adapter
 	// +optional
 	Parameters map[string]string `json:"parameters,omitempty"`
+}
+
+// GetPVCName gets the name of the PVC to be used
+func (configuration *AdapterConfiguration) GetPVCName() string {
+	if result, ok := configuration.Parameters["pvcName"]; ok {
+		return result
+	}
+
+	return DefaultPVCName
 }
 
 // GetAdapterConfiguration returns the adapter configuration if stored into the Pod

@@ -100,14 +100,14 @@ func (injector *Data) Default(ctx context.Context, obj runtime.Object) error {
 	if len(pod.Spec.Volumes) > 0 {
 		pod.Spec.Volumes = append(
 			pod.Spec.Volumes,
-			injector.getBackupVolume())
+			injector.getBackupVolume(configuration))
 	}
 
 	// Inject annotations
 	if pod.Annotations == nil {
 		pod.Annotations = map[string]string{}
 	}
-	pod.Annotations["filepath-adapter.leonardoce.io"] = "injected"
+	pod.Annotations["filepath-adapter.leonardoce.io/injected"] = "true"
 	logger.Info("Sidecar injected")
 
 	return nil
