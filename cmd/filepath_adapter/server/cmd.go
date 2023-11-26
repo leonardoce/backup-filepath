@@ -6,7 +6,7 @@ import (
 
 	"github.com/leonardoce/backup-adapter/pkg/adapter"
 	"github.com/leonardoce/backup-filepath/internal/logging"
-	"github.com/leonardoce/backup-filepath/pkg/walmanager"
+	"github.com/leonardoce/backup-filepath/internal/walmanager"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
