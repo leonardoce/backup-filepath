@@ -25,7 +25,7 @@ func NewWalManagerImplementation(basePath string) *WalManagerImplementation {
 }
 
 func (impl *WalManagerImplementation) getWalPrefix(walName string) string {
-	return walName[0:8]
+	return walName[0:16]
 }
 
 func (impl *WalManagerImplementation) getWalPath(clusterName string, walName string) string {

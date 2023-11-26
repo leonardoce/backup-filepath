@@ -20,9 +20,12 @@ func Cmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			logger := logging.FromContext(cmd.Context())
 			grpcServer := grpc.NewServer()
+
+			basePath := viper.GetString("base-path")
+			walManagerImpl := walmanager.NewWalManagerImplementation(basePath)
 			adapter.RegisterWalManagerServer(
 				grpcServer,
-				walmanager.NewWalManagerImplementation(viper.GetString("base-path")))
+				walManagerImpl)
 
 			listener, err := net.Listen(
 				viper.GetString("listening-network"),
@@ -33,6 +36,7 @@ func Cmd() *cobra.Command {
 				return err
 			}
 
+			logger.Info("Starting WAL Management server", "basePath", basePath)
 			err = grpcServer.Serve(listener)
 			if err != nil {
 				logger.Error(err, "While terminatind server")
@@ -41,13 +45,6 @@ func Cmd() *cobra.Command {
 			return err
 		},
 	}
-
-	cmd.Flags().String(
-		"listen-addresses",
-		":8000",
-		"The default port where the web server is listening",
-	)
-	_ = viper.BindPFlag("listen-addresses", cmd.Flags().Lookup("listen-addresses"))
 
 	cmd.Flags().String(
 		"base-path",
