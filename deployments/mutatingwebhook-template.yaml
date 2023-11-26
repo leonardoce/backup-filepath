@@ -22,6 +22,8 @@ webhooks:
       operator: Exists
     - key: cnpg.io/instanceName
       operator: Exists
+    - key: cnpg.io/podRole
+      operator: Exists
   reinvocationPolicy: Never
   rules:
   - apiGroups:
