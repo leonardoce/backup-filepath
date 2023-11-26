@@ -23,3 +23,4 @@ fi
 
 kubectl apply -f deployments/deployment.yaml
 kubectl apply -f deployments/service.yaml
+kubectl apply -f deployments/backups-pvc.yaml
