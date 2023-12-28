@@ -12,5 +12,5 @@ RUN ./scripts/build.sh
 
 # Step 2: build the image to be actually run
 FROM alpine:3.18.4
-COPY --from=builder /app/bin/filepath_adapter /app/bin/filepath_adapter
-ENTRYPOINT ["/app/bin/filepath_adapter"]
+COPY --from=builder /app/bin/volume_injector /app/bin/volume_injector
+ENTRYPOINT ["/app/bin/volume_injector"]

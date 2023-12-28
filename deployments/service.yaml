@@ -3,15 +3,15 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
-    app: filepath-service
-  name: filepath-service
-  namespace: filepath
+    app: volumeinjector-service
+  name: volumeinjector-service
+  namespace: volumeinjector
 spec:
   ports:
   - port: 443
     protocol: TCP
     targetPort: 443
   selector:
-    app: filepath-deployment
+    app: volumeinjector-deployment
 status:
   loadBalancer: {}

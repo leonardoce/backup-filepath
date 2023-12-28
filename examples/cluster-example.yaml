@@ -1,0 +1,16 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster-example
+spec:
+  instances: 1
+
+  inheritedMetadata:
+    annotations:
+      cnpg.io/additionalVolumes: |
+        - claimName: additional-pvc
+          readOnly: true
+          mountPath: /additional
+
+  storage:
+    size: 1Gi

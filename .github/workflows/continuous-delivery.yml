@@ -1,4 +1,4 @@
-name: filepath_adapter CI
+name: volume_injector CI
 on:
   push:
     branches:

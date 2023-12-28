@@ -16,7 +16,6 @@ linters:
   enable:
     - asciicheck
     - bodyclose
-    - depguard
     - dogsled
     - dupl
     - durationcheck
@@ -66,6 +65,7 @@ linters:
   # - forcetypeassert
   # - goerr113
   # - ifshort
+  # - depguard
   # - nilerr
   # - nlreturn
   # - noctx

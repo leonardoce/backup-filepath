@@ -14,5 +14,5 @@ jobs:
         id: release
         with:
           release-type: go
-          package-name: filepath_adapter
+          package-name: volume_injector
           token: ${{secrets.REPO_PAT}}

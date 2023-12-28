@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/leonardoce/backup-filepath/internal/logging"
-
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -14,24 +12,24 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+
+	"github.com/leonardoce/backup-filepath/internal/logging"
+	"github.com/leonardoce/backup-filepath/pkg/apis"
 )
 
-const PluginId = "filepath.leonardoce.io"
-
+// Data is the configuration of the webhook server
 type Data struct {
-	webhookPort     int
-	image           string
-	imagePullPolicy string
+	webhookPort int
 }
 
+// New creates a new webhook runner
 func New() *Data {
 	return &Data{
-		webhookPort:     443,
-		image:           "filepath_adapter:latest",
-		imagePullPolicy: "Never",
+		webhookPort: 443,
 	}
 }
 
+// Run starts the webhooks web server
 func (injector *Data) Run(ctx context.Context) error {
 	logger := logging.FromContext(ctx)
 	log.SetLogger(logger)
@@ -61,6 +59,7 @@ func (injector *Data) Run(ctx context.Context) error {
 	return nil
 }
 
+// Default implements the mutating webhook
 func (injector *Data) Default(ctx context.Context, obj runtime.Object) error {
 	logger := logging.FromContext(ctx)
 
@@ -71,44 +70,41 @@ func (injector *Data) Default(ctx context.Context, obj runtime.Object) error {
 
 	logger = logger.WithValues("podName", pod.Name, "podNamespace", pod.Namespace)
 
-	configuration, err := GetAdapterConfiguration(pod)
+	additionalVolumesConfiguration, err := getAdditionalVolumesConfiguration(pod)
 	if err != nil {
 		return err
 	}
-	if configuration == nil {
-		// This is not a CNPG Pod
+	if additionalVolumesConfiguration == nil {
+		// Nothing to see here, this pod is not interesting to us
 		return nil
 	}
 
-	if configuration.ID != PluginId {
-		// This s not the correct injector
-		logger.Info(
-			"This not is not applicable to this injector",
-			"configuration", configuration,
-			"pluginID", PluginId)
-		return nil
+	// Let's validate the annotation
+	for i := range additionalVolumesConfiguration {
+		if err := additionalVolumesConfiguration[i].Validate(); err != nil {
+			logger.Info("Invalid volume configuration", "targetVolume", additionalVolumesConfiguration[i], "err", err)
+			return err
+		}
 	}
 
-	// Inject sidecar
-	if len(pod.Spec.Containers) > 0 {
-		pod.Spec.Containers = append(
-			pod.Spec.Containers,
-			injector.getSidecarContainer())
+	// Inject additional volumes
+	pod.Spec.Volumes = append(
+		pod.Spec.Volumes,
+		createKubernetesVolumes(additionalVolumesConfiguration)...)
+
+	// Inject additional volume mounts in every container
+	for i := range pod.Spec.Containers {
+		pod.Spec.Containers[i].VolumeMounts = append(
+			pod.Spec.Containers[i].VolumeMounts,
+			createKubernetesVolumeMounts(additionalVolumesConfiguration)...)
 	}
 
-	// Inject backup volume
-	if len(pod.Spec.Volumes) > 0 {
-		pod.Spec.Volumes = append(
-			pod.Spec.Volumes,
-			injector.getBackupVolume(configuration))
-	}
-
-	// Inject annotations
+	// Inject annotation
 	if pod.Annotations == nil {
 		pod.Annotations = map[string]string{}
 	}
-	pod.Annotations["filepath-adapter.leonardoce.io/injected"] = "true"
-	logger.Info("Sidecar injected")
+	pod.Annotations[apis.AdditionalVolumesInjectedAnnotationName] = "true"
+	logger.Info("Volume injected", "configuration", additionalVolumesConfiguration)
 
 	return nil
 }

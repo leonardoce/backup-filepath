@@ -7,4 +7,4 @@ if [ -z "$(which docker)" ]; then
     exit 1
 fi
 
-docker build -t filepath_adapter:${VERSION:-latest} .
+docker build -t volume_injector:${VERSION:-latest} .

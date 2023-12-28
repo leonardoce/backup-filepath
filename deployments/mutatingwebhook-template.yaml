@@ -1,20 +1,20 @@
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: filepath-adapter-injector
+  name: volumeinjector-adapter-injector
 webhooks:
 - admissionReviewVersions:
   - v1
   clientConfig:
     caBundle: ${CA_BUNDLE}
     service:
-      name: filepath-service
-      namespace: filepath
+      name: volumeinjector-service
+      namespace: volumeinjector
       path: /mutate--v1-pod
       port: 443
   failurePolicy: Fail
   matchPolicy: Equivalent
-  name: filepath.leonardoce.io
+  name: volumeinjector.leonardoce.io
   namespaceSelector: {}
   objectSelector:
     matchExpressions:

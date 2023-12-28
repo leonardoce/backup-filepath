@@ -1,48 +1,56 @@
 package injector
 
 import (
-	"encoding/json"
-
+	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
+
+	"github.com/leonardoce/backup-filepath/pkg/apis"
 )
 
-// BackupAdapterAnnotationName is the name of the annotation storing the configuration of the
-// backup adapter
-const BackupAdapterAnnotationName = "cnpg.io/backupAdapter"
-
-// DefaultPVCName if the name of the default PVC to be used
-const DefaultPVCName = "backups-pvc"
-
-// AdapterConfiguration contains the configuration for an external backup adapter
-type AdapterConfiguration struct {
-	// Id is the adapter ID, used by the injector
-	ID string `json:"id"`
-
-	// Parameters contains the configuration of the backup adapter
-	// +optional
-	Parameters map[string]string `json:"parameters,omitempty"`
-}
-
-// GetPVCName gets the name of the PVC to be used
-func (configuration *AdapterConfiguration) GetPVCName() string {
-	if result, ok := configuration.Parameters["pvcName"]; ok {
-		return result
-	}
-
-	return DefaultPVCName
-}
-
-// GetAdapterConfiguration returns the adapter configuration if stored into the Pod
-func GetAdapterConfiguration(pod *corev1.Pod) (*AdapterConfiguration, error) {
-	configurationString, ok := pod.Annotations[BackupAdapterAnnotationName]
+// getAdditionalVolumesConfiguration returns the additional volumes configuration if stored into the Pod
+func getAdditionalVolumesConfiguration(pod *corev1.Pod) ([]apis.AdditionalVolume, error) {
+	configurationString, ok := pod.Annotations[apis.AdditionalVolumesAnnotationName]
 	if !ok {
 		return nil, nil
 	}
 
-	var result AdapterConfiguration
-	if err := json.Unmarshal([]byte(configurationString), &result); err != nil {
+	var result []apis.AdditionalVolume
+	if err := yaml.Unmarshal([]byte(configurationString), &result); err != nil {
 		return nil, err
 	}
 
-	return &result, nil
+	return result, nil
+}
+
+// createKubernetesVolumes creates the kubernetes volumes for the defined
+// additional volumes
+func createKubernetesVolumes(configuration []apis.AdditionalVolume) (result []corev1.Volume) {
+	result = make([]corev1.Volume, len(configuration))
+	for i, volumeConfiguration := range configuration {
+		result[i] = corev1.Volume{
+			Name: volumeConfiguration.ClaimName,
+			VolumeSource: corev1.VolumeSource{
+				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+					ClaimName: volumeConfiguration.ClaimName,
+					ReadOnly:  volumeConfiguration.ReadOnly,
+				},
+			},
+		}
+	}
+
+	return result
+}
+
+// createKubernetesVolumes creates the kubernetes volume mount points for the
+// defined additional volumes
+func createKubernetesVolumeMounts(configuration []apis.AdditionalVolume) (result []corev1.VolumeMount) {
+	result = make([]corev1.VolumeMount, len(configuration))
+	for i, volumeConfiguration := range configuration {
+		result[i] = corev1.VolumeMount{
+			Name:      volumeConfiguration.ClaimName,
+			MountPath: volumeConfiguration.MountPath,
+		}
+	}
+
+	return result
 }

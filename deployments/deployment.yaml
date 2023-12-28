@@ -3,32 +3,32 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    app: filepath-deployment
-  name: filepath-deployment
-  namespace: filepath
+    app: volumeinjector-deployment
+  name: volumeinjector-deployment
+  namespace: volumeinjector
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: filepath-deployment
+      app: volumeinjector-deployment
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: filepath-deployment
+        app: volumeinjector-deployment
     spec:
       volumes:
       - name: secrets
         secret:
-          secretName: filepath-secret
+          secretName: volumeinjector-secret
       containers:
-      - image: filepath_adapter:latest
+      - image: volume_injector:latest
         imagePullPolicy: Never
         command:
-        - /app/bin/filepath_adapter
+        - /app/bin/volume_injector
         - "injector"
-        name: filepath
+        name: volumeinjector
         resources: {}
         volumeMounts:
           - name: secrets

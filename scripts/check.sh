@@ -3,7 +3,7 @@
 cd "$(dirname "$0")/.." || exit
 
 if [ ! -f "bin/golangci-lint" ]; then
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.50.1
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.55.2
 fi
 
-bin/golangci-lint run
+bin/golangci-lint run --timeout 20m
