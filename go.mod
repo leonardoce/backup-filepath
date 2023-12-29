@@ -1,4 +1,4 @@
-module github.com/leonardoce/backup-filepath
+module github.com/cloudnative-pg/volume-injector
 
 go 1.19
 

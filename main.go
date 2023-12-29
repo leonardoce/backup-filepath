@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/leonardoce/backup-filepath/cmd/injector"
+	"github.com/cloudnative-pg/volume-injector/cmd/injector"
 )
 
 func main() {

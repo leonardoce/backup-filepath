@@ -1,4 +1,4 @@
-name: volume_injector CI
+name: volume-injector CI
 on:
   push:
     branches:

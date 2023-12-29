@@ -6,8 +6,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/leonardoce/backup-filepath/internal/injector"
-	"github.com/leonardoce/backup-filepath/internal/logging"
+	"github.com/cloudnative-pg/volume-injector/internal/injector"
+	"github.com/cloudnative-pg/volume-injector/internal/logging"
 )
 
 // Cmd is the "volume_injector" command

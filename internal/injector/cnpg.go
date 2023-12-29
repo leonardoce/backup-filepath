@@ -4,7 +4,7 @@ import (
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/leonardoce/backup-filepath/pkg/apis"
+	"github.com/cloudnative-pg/volume-injector/pkg/apis"
 )
 
 // getAdditionalVolumesConfiguration returns the additional volumes configuration if stored into the Pod

@@ -13,8 +13,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	"github.com/leonardoce/backup-filepath/internal/logging"
-	"github.com/leonardoce/backup-filepath/pkg/apis"
+	"github.com/cloudnative-pg/volume-injector/internal/logging"
+	"github.com/cloudnative-pg/volume-injector/pkg/apis"
 )
 
 // Data is the configuration of the webhook server

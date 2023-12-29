@@ -5,7 +5,7 @@ linters-settings:
     sections:
       - standard
       - default
-      - prefix(github.com/leonardoce/backup-filepath)
+      - prefix(github.com/cloudnative-pg/volume-injector)
       - blank
       - dot
 
