@@ -1,3 +1,6 @@
 [submodule "cloudnative-pg"]
 	path = cloudnative-pg
 	url = git@github.com:leonardoce/cloudnative-pg.git
+[submodule "backup-adapter"]
+	path = backup-adapter
+	url = git@github.com:leonardoce/backup-adapter.git
